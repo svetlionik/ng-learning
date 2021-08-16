@@ -1,21 +1,18 @@
-﻿//This handles retrieving data and is used by controllers. 3 options (server, factory, provider) with 
+﻿//This handles retrieving data and is used by controllers. 3 options (server, factory, provider) with
 //each doing the same thing just structuring the functions/data differently.
-app.service('customersService', function () {
+app.service('customersService', function ($http) {
+    const url = 'http://127.0.0.1:3000/customers';
     this.getCustomers = function () {
-        return customers;
+        return $http({ method: 'GET', url });
     };
 
     this.insertCustomer = function (firstName, lastName, city) {
-        var topID = customers.length + 1;
-        customers.push({
-            id: topID,
-            firstName: firstName,
-            lastName: lastName,
-            city: city
-        });
+        const data = { firstName, lastName, city };
+        return $http({ method: 'POST', url, data });
     };
 
     this.deleteCustomer = function (id) {
+        return $http({ method: 'DELETE', url:`${url}/${id}` });
         for (var i = customers.length - 1; i >= 0; i--) {
             if (customers[i].id === id) {
                 customers.splice(i, 1);

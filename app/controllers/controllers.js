@@ -1,5 +1,5 @@
 ﻿/*#######################################################################
-  
+
   Dan Wahlin
   http://twitter.com/DanWahlin
   http://weblogs.asp.net/dwahlin
@@ -7,7 +7,7 @@
 
   Normally like the break AngularJS controllers into separate files.
   Kept them together here since they're small and it's easier to look through them.
-  example. 
+  example.
 
   #######################################################################*/
 
@@ -22,20 +22,29 @@ app.controller('CustomersController', function ($scope, customersService) {
 
     function init() {
         $scope.customers = customersService.getCustomers();
+        customersService.getCustomers()
+            .then(result => {
+                $scope.customers = result.data;
+            });
+        // console.log(customers.$$state[0]);
     }
 
     $scope.insertCustomer = function () {
         var firstName = $scope.newCustomer.firstName;
         var lastName = $scope.newCustomer.lastName;
         var city = $scope.newCustomer.city;
-        customersService.insertCustomer(firstName, lastName, city);
+        customersService.insertCustomer(firstName, lastName, city).then(result => {
+            $scope.customers.push(result.data);
+        });
         $scope.newCustomer.firstName = '';
         $scope.newCustomer.lastName = '';
         $scope.newCustomer.city = '';
     };
 
     $scope.deleteCustomer = function (id) {
-        customersService.deleteCustomer(id);
+        customersService.deleteCustomer(id).then(() => {
+            $scope.customers = $scope.customers.filter(e => e.id !== id);
+        });
     };
 });
 
@@ -50,7 +59,7 @@ app.controller('CustomerOrdersController', function ($scope, $routeParams, custo
     init();
 
     function init() {
-        //Grab customerID off of the route        
+        //Grab customerID off of the route
         var customerID = ($routeParams.customerID) ? parseInt($routeParams.customerID) : 0;
         if (customerID > 0) {
             $scope.customer = customersService.getCustomer(customerID);
@@ -84,7 +93,7 @@ app.controller('NavbarController', function ($scope, $location) {
 });
 
 //This controller is a child controller that will inherit functionality from a parent
-//It's used to track the orderby parameter and ordersTotal for a customer. Put it here rather than duplicating 
+//It's used to track the orderby parameter and ordersTotal for a customer. Put it here rather than duplicating
 //setOrder and orderby across multiple controllers.
 app.controller('OrderChildController', function ($scope) {
     $scope.orderby = 'product';
@@ -107,8 +116,7 @@ app.controller('OrderChildController', function ($scope) {
     }
 
     $scope.setOrder = function (orderby) {
-        if (orderby === $scope.orderby)
-        {
+        if (orderby === $scope.orderby) {
             $scope.reverse = !$scope.reverse;
         }
         $scope.orderby = orderby;
